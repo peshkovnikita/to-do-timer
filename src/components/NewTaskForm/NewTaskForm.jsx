@@ -4,19 +4,47 @@ export default class NewTaskForm extends Component {
 
   state = {
     taskText: '',
+    taskMin: '',
+    taskSec: ''
   }
 
-  onTaskChange = (e) => {
+  onTextChange = (e) => {
     this.setState({
-      taskText: e.target.value,
+      taskText: e.target.value
     })
+  }
+
+  onMinChange = (e) => {
+    const newValue = e.target.value;
+    // if (newValue === '') this.setState({ taskMin: '' });
+    if (/^\d{0,3}$/.test(newValue) && Number(newValue) <= 999) {
+      this.setState({
+        taskMin: newValue
+      });
+    }
+  }
+
+  onSecChange = (e) => {
+    const newValue = e.target.value;
+    // if (newValue === '') this.setState({ taskSec: '' });
+    if (/^\d{0,2}$/.test(newValue) && Number(newValue) <= 59) {
+      this.setState({
+        taskSec: newValue
+      });
+    }
   }
 
   onSubmitTask = (e) => {
     e.preventDefault()
-    this.props.onItemAdded(this.state.taskText)
+    const { taskText, taskMin, taskSec } = this.state;
+    const totalSeconds = Number(taskMin) * 60 + Number(taskSec)
+    this.props.onItemAdded(taskText, totalSeconds)
 
-    this.setState({ taskText: '' })
+    this.setState({
+      taskText: '',
+      taskMin: '',
+      taskSec: ''
+    })
   }
 
   render() {
@@ -29,8 +57,11 @@ export default class NewTaskForm extends Component {
                  className='new-todo'
                  placeholder='What needs to be done?'
                  value={this.state.taskText}
-                 onChange={this.onTaskChange}
+                 onChange={this.onTextChange}
           />
+          <input type="text" value={this.state.taskMin} onChange={this.onMinChange} className="new-todo-form__timer" placeholder="Min" />
+          <input type="text" value={this.state.taskSec} onChange={this.onSecChange} className="new-todo-form__timer" placeholder="Sec" />
+          <button type='submit' className='visually-hidden'/>
         </form>
       </header>
     )

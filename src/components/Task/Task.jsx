@@ -4,9 +4,9 @@ import { formatDistanceToNow } from 'date-fns'
 export default class Task extends Component {
   state = {
     taskText: this.props.description,
-    time: 0,
+    time: this.props.seconds,
     isRunning: false,
-    startTime: 0,
+    endTimer: 0,
   }
 
   componentWillUnmount() {
@@ -16,23 +16,27 @@ export default class Task extends Component {
   _requestRef = null
 
   startTimer = () => {
-    if(this.state.isRunning) return
+    if(this.state.isRunning || this.state.time === 0) return
 
     this.setState({
       isRunning: true,
-      startTime: Date.now() - this.state.time * 1000,
+      endTimer: Date.now() + this.state.time * 1000,
     });
     this._requestRef = requestAnimationFrame(this.tick);
   }
 
   tick = () => {
     const currentTime = Date.now();
+    const timeLeft = Math.floor((this.state.endTimer - currentTime) / 1000)
 
-    this.setState({
-      time: Math.floor((currentTime - this.state.startTime) / 1000),
-    });
-
-    this._requestRef = requestAnimationFrame(this.tick);
+    if(timeLeft > 0) {
+      this.setState({ time: timeLeft });
+      this._requestRef = requestAnimationFrame(this.tick);
+    }
+    else {
+      cancelAnimationFrame(this._requestRef);
+      this.setState({ time: 0, isRunning: false, endTimer: 0 });
+    }
   }
 
   pauseTimer = () => {
@@ -43,7 +47,7 @@ export default class Task extends Component {
   onTaskDone = () => {
     this.props.onToggleDone()
     cancelAnimationFrame(this._requestRef);
-    this.setState({ isRunning: false, time: 0 })
+    this.setState({ isRunning: false, time: 0, endTimer: 0 })
   }
 
   deleteHandler = () => {
@@ -51,9 +55,9 @@ export default class Task extends Component {
   }
 
   onTaskChange = (e) => {
-    this.setState({
-      taskText: e.target.value,
-    })
+      this.setState({
+        taskText: e.target.value,
+      })
   }
 
   onSubmit = (e) => {

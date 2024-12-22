@@ -10,9 +10,10 @@ export default class App extends Component {
     filter: 'all',
   }
 
-  createTask(description) {
+  createTask(description, seconds) {
     return {
       description,
+      seconds,
       isEditing: false,
       isDone: false,
       creationTime: Date.now(),
@@ -20,9 +21,9 @@ export default class App extends Component {
     }
   }
 
-  addItem = (text) => {
+  addItem = (text, seconds) => {
     if (text.trim()) {
-      const newTask = this.createTask(text)
+      const newTask = this.createTask(text, seconds)
       this.setState((prevState) => {
         const newTaskList = [...prevState.taskData.slice(), newTask]
 
